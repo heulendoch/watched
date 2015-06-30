@@ -1,0 +1,104 @@
+﻿<Window x:Class="Watched.Windows.SerieStaffelEdit"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converter="clr-namespace:Watched.Converter"
+        xmlns:util="clr-namespace:Watched"
+        Title="Serienname" Height="400" Width="400">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <converter:ConverterDateTime x:Key="DateTime"/>
+            <converter:ConverterCountEnabled x:Key="CountEnabled"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Watched;component/Themes/Base.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <DockPanel Margin="4">
+        <GroupBox DockPanel.Dock="Top" Margin="0,4" Header="Staffel hinzufügen" Padding="0,6">
+            <StackPanel Orientation="Vertical">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Template="{DynamicResource ButtonAdd}" Click="AddStaffel"/>
+                    <TextBlock Text="#" VerticalAlignment="Stretch" HorizontalAlignment="Center" FontSize="16"/>
+                    <TextBox x:Name="tbStaffelNummer" Margin="5,0" Width="40"/>
+                    <TextBox x:Name="tbStaffelName" Margin="5,0"/>
+                </DockPanel>
+            </StackPanel>
+        </GroupBox>
+
+        <DockPanel DockPanel.Dock="Top" Margin="4">
+            <TextBlock VerticalAlignment="Center" Margin="0,0,4,0"><Bold>Staffel:</Bold></TextBlock>
+            <Button DockPanel.Dock="Right" Template="{DynamicResource ButtonRemove}" Margin="0,0,3,0" Click="RemoveStaffel"
+                    IsEnabled="{Binding ElementName=cbStaffeln, Path=Items.Count, Converter={StaticResource CountEnabled}}"/>
+            <Button DockPanel.Dock="Right" Template="{DynamicResource ButtonEdit}" Margin="6,0,3,0" Click="EditStaffel"
+                    IsEnabled="{Binding ElementName=cbStaffeln, Path=Items.Count, Converter={StaticResource CountEnabled}}"/>
+            <ComboBox x:Name="cbStaffeln" SelectedIndex="0" VerticalAlignment="Center"
+                      ItemsSource="{Binding Staffeln, Mode=OneWay}"
+                      IsEnabled="{Binding ElementName=cbStaffeln, Path=Items.Count, Converter={StaticResource CountEnabled}}"/>
+            
+        </DockPanel>
+
+        <GroupBox DockPanel.Dock="Top" Margin="0,4" Header="Folge hinzufügen" Padding="0,6"
+                  IsEnabled="{Binding ElementName=cbStaffeln, Path=Items.Count, Converter={StaticResource CountEnabled}}">
+            <StackPanel Orientation="Vertical">
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                        <Button Template="{DynamicResource ButtonAdd}" Click="AddFolge" />
+                        <Button Template="{DynamicResource ButtonAddSpecial}" Click="AddFolgeRange"  Margin="3,0,0,0" ToolTip="Mehrere Folgen auf einmal hinzufügen"/>
+                        <Button Template="{DynamicResource ButtonSearch}" Click="SearchFolgenVerpasst" Margin="3,0,0,0" ToolTip="Finde verpasste Folgen"/>
+                    </StackPanel>
+                    
+                    <TextBlock Text="#" VerticalAlignment="Stretch" HorizontalAlignment="Center" FontSize="16"/>
+                    <TextBox x:Name="tbFolgeNummer" Margin="5,0" Width="40"/>
+                    <TextBox x:Name="tbFolgeName" Margin="5,0"/>
+                </DockPanel>
+            </StackPanel>
+        </GroupBox>
+
+        
+        <Button DockPanel.Dock="Bottom" Click="ButtonSave" Template="{DynamicResource ButtonSave}"/>
+        <TextBlock DockPanel.Dock="Bottom" FontSize="10" Text="{Binding ElementName=lvFolgen, Path=Items.Count, StringFormat=Anzahl Einträge: {0}}"/>
+
+        <ListView x:Name="lvFolgen" 
+                  ItemsSource="{Binding ElementName=cbStaffeln, Path=SelectedItem.Folgen}"
+                  IsEnabled="{Binding ElementName=cbStaffeln, Path=SelectedItem.Folgen.Count, Converter={StaticResource CountEnabled}}"
+                  DockPanel.Dock="Top" SelectionMode="Single" MouseDoubleClick="EditFolgeDoubleClick"
+                  util:GridViewSort.AutoSort="True">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment" Value="Top" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="30" Header="#"
+                                    DisplayMemberBinding="{Binding Nummer}"
+                                    util:GridViewSort.PropertyName="Nummer"/>
+                    <GridViewColumn Width="120" Header="Name"
+                                    DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Width="80" Header="Aktionen">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="/Watched;component/Resources/edit.png" Width="16" Height="16" Tag="{Binding}" MouseLeftButtonDown="EditFolge"/>
+                                    <Image Source="/Watched;component/Resources/remove.png" Width="16" Height="16" Tag="{Binding}" MouseLeftButtonDown="RemoveFolge"/>
+                                    <Button Width="15" Height="15" FontSize="9" Padding="0,-2,0,0" Content="0" Command="{Binding ComAddZeitpunktGesehenHeute}" ToolTip="Als Heute gesehen hinzufügen"/>
+                                    <Button Width="15" Height="15" FontSize="9" Padding="0,-2,0,0" Content="-1" Command="{Binding ComAddZeitpunktGesehenGestern}" ToolTip="Als Gestern gesehen hinzufügen"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="120" Header="Zuletzt gesehen" 
+                                    DisplayMemberBinding="{Binding ZeitpunktGesehenZuletzt, Converter={StaticResource DateTime}}"
+                                    util:GridViewSort.PropertyName="ZeitpunktGesehenZuletzt"/>
+                    <GridViewColumn Width="120" Header="Anzahl gesehen"
+                                    DisplayMemberBinding="{Binding ZeitpunktGesehen.Count}"
+                                    util:GridViewSort.PropertyName="ZeitpunktGesehen.Count"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+    </DockPanel>
+</Window>

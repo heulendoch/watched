@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "WatchedNew\Core.csproj", "{3042A685-0CD2-4531-8886-2C26FFC091CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Watched", "Watched\Watched.csproj", "{B70EA0E8-C579-4775-9626-238E27865766}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchedKonsole", "WatchedKonsole\WatchedKonsole.csproj", "{394F528F-A08A-4925-A676-AF20460405D1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3042A685-0CD2-4531-8886-2C26FFC091CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3042A685-0CD2-4531-8886-2C26FFC091CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3042A685-0CD2-4531-8886-2C26FFC091CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3042A685-0CD2-4531-8886-2C26FFC091CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B70EA0E8-C579-4775-9626-238E27865766}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B70EA0E8-C579-4775-9626-238E27865766}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B70EA0E8-C579-4775-9626-238E27865766}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B70EA0E8-C579-4775-9626-238E27865766}.Release|Any CPU.Build.0 = Release|Any CPU
+		{394F528F-A08A-4925-A676-AF20460405D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{394F528F-A08A-4925-A676-AF20460405D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{394F528F-A08A-4925-A676-AF20460405D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{394F528F-A08A-4925-A676-AF20460405D1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

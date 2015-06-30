@@ -1,0 +1,52 @@
+﻿<Window x:Class="Watched.Windows.FolgeEdit"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converter="clr-namespace:Watched.Converter"
+        Title="Folge bearbeiten" Height="300" Width="300">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <converter:ConverterDateTime x:Key="DateTime"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Watched;component/Themes/Base.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <DockPanel Margin="4">
+        <DockPanel Height="20" DockPanel.Dock="Top" Margin="0,4">
+            <TextBlock Text="Nummer:" Margin="4,0" Width="80"/>
+            <TextBox Text="{Binding Nummer}"/>
+        </DockPanel>
+        <DockPanel Height="20" DockPanel.Dock="Top" Margin="0,4">
+            <TextBlock Text="Name:" Margin="4,0" Width="80"/>
+            <TextBox Text="{Binding Name}"/>
+        </DockPanel>
+
+        <Button DockPanel.Dock="Bottom" Click="ButtonSave" Template="{DynamicResource ButtonSave}"/>
+        
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,4">
+            <Image x:Name="imgShowCalendar" Source="/Watched;component/Resources/calendar.png" Width="24" Height="24"/>
+            <Button DockPanel.Dock="Right" Template="{DynamicResource ButtonAdd}" Click="AddItemZeitpunktGesehen"/>
+            <TextBox x:Name="tbZeitpunktGesehen" Margin="5,0"/>
+        </DockPanel>
+        
+        
+
+        <ListBox ItemsSource="{Binding ZeitpunktGesehen}" x:Name="lbZeitpunkte" DockPanel.Dock="Bottom">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <DockPanel>
+                        <Image Source="/Watched;component/Resources/remove.png" Height="20" Width="20" Margin="0,0,5,0" MouseLeftButtonDown="RemoveItemZeitpunktGesehen"/>
+                        <TextBlock Text="{Binding Converter={StaticResource DateTime}}"/>
+                    </DockPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+
+           
+
+    </DockPanel>
+    
+</Window>

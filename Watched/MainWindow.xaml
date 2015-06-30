@@ -1,0 +1,97 @@
+﻿<Window x:Class="Watched.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converter="clr-namespace:Watched.Converter"
+        xmlns:util="clr-namespace:Watched"
+        Title="Verwaltung" Height="350" Width="525" Closing="ProofSavingRequired" Icon="Resources/tv.png">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <converter:ConverterDateTime x:Key="DateTime"/>
+            <converter:ConverterCountEnabled x:Key="CountEnabled"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Watched;component/Themes/Base.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <DockPanel Margin="4">
+        <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center" FontSize="20"><Bold>Serienübersicht</Bold></TextBlock>
+
+        <GroupBox DockPanel.Dock="Top" Margin="0,4" Header="Serie hinzufügen" Padding="0,6">
+            <StackPanel Orientation="Vertical">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Template="{DynamicResource ButtonAdd}" Click="AddSerie"/>
+                    <TextBox x:Name="tbSerieName" Margin="5,0"/>
+                </DockPanel>
+            </StackPanel>
+        </GroupBox>
+        
+        <Button DockPanel.Dock="Bottom" Click="ButtonSave" Template="{DynamicResource ButtonSave}"/>
+        <TextBlock DockPanel.Dock="Bottom" Margin="4,2,0,0" FontSize="10" Text="{Binding ElementName=lvSerien, Path=Items.Count, StringFormat=Anzahl Einträge: {0}}"/>
+        
+        <ListView x:Name="lvSerien" 
+                  IsEnabled="{Binding Items.Count, Converter={StaticResource CountEnabled}}"
+                  DockPanel.Dock="Top" SelectionMode="Single" MouseDoubleClick="EditStaffelnDoubleClick" util:GridViewSort.AutoSort="True">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment" Value="Top" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="120" Header="Serie"
+                                    DisplayMemberBinding="{Binding Name}"
+                                    util:GridViewSort.PropertyName="Name"/>
+                    <GridViewColumn Width="70" Header="Aktionen">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="Resources/edit.png" Width="16" Height="16" Tag="{Binding}" MouseLeftButtonDown="EditStaffeln"/>
+                                    <Image Source="Resources/remove.png" Width="16" Height="16" Tag="{Binding}" MouseLeftButtonDown="DeleteSerie"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="130" Header="Letzte Staffel gesehen" 
+                                    DisplayMemberBinding="{Binding ZuletztGesehenStaffel}" />
+                    <GridViewColumn Width="130" Header="Letzte Folge gesehen"
+                                    DisplayMemberBinding="{Binding ZuletztGesehenFolge}" />
+                    <GridViewColumn Width="100" Header="Zeitpunkt"
+                                    DisplayMemberBinding="{Binding ZuletztGesehenFolge.ZeitpunktGesehenZuletzt, Converter={StaticResource DateTime}}"
+                                    util:GridViewSort.PropertyName="ZuletztGesehenFolge.ZeitpunktGesehenZuletzt"/>
+                    <GridViewColumn Width="100" Header="Heute gesehen">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Command="{Binding ComAddZuletztGesehenStaffelNeueFolgeHeute}" ToolTip="Nächste Folge als heute gesehen eintragen">
+                                        <TextBlock FontSize="9">F+1</TextBlock>
+                                    </Button>
+                                    <Button Command="{Binding ComAddNeueStaffelFolgeEinsGesehenHeute}" ToolTip="Nächste Staffel hinzufügen und erste Folge als heute gesehen eintragen">
+                                        <TextBlock FontSize="9">S+1(F1)</TextBlock>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="100" Header="Gestern gesehen">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Command="{Binding ComAddZuletztGesehenStaffelNeueFolgeGestern}" ToolTip="Nächste Folge als gestern gesehen eintragen">
+                                        <TextBlock FontSize="9">F+1</TextBlock>
+                                    </Button>
+                                    <Button Command="{Binding ComAddNeueStaffelFolgeEinsGesehenGestern}" ToolTip="Nächste Staffel hinzufügen und erste Folge als gestern gesehen eintragen">
+                                        <TextBlock FontSize="9">S+1(F1)</TextBlock>
+                                    </Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+    </DockPanel>
+</Window>
