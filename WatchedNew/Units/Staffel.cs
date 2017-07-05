@@ -165,7 +165,7 @@ namespace Core.Units {
         }
 
         public Folge ZuletztGesehenFolge {
-            get { return this.Folgen.ZuletztGesehen(); }
+            get { return this.Folgen.ZuletztGesehen() ?? new Folge(-1, false, DateTime.MinValue); }
         }
 
         public Staffel Next(DateTime GesehenFolgeEins) {

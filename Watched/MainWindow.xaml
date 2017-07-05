@@ -27,7 +27,7 @@
                     <Button DockPanel.Dock="Right" Template="{DynamicResource ButtonSearch}" Click="Search" Margin="3,0,0,0" ToolTip="Suchen und hinzufügen von Serien"/>
                     <Button DockPanel.Dock="Right" Template="{DynamicResource ButtonAdd}" Click="AddSerie"/>
                     
-                    <TextBox x:Name="tbSerieName" Margin="5,0"/>
+                    <TextBox x:Name="tbSerieName" Margin="5,0" VerticalContentAlignment="Center"/>
                 </DockPanel>
             </StackPanel>
         </GroupBox>

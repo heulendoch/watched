@@ -119,7 +119,7 @@ namespace Core.Units {
 
         
         public Staffel ZuletztGesehenStaffel {
-            get { return this.GetZuletztGesehenStaffel(); }
+            get { return this.GetZuletztGesehenStaffel() ?? new Staffel(-1); }
         }
 
         [DebuggerStepThrough]

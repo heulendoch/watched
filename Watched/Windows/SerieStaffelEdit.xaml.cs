@@ -25,21 +25,18 @@ namespace Watched.Windows {
         public SerieStaffelEdit(ObservableCollection<Staffel> Staffeln = null, string Serienname = "") {
             InitializeComponent();
 
-            if (Staffeln == null) {
-                Staffeln = new ObservableCollection<Staffel>();
-                
+            Staffeln = Staffeln ?? new ObservableCollection<Staffel>();
+
+            foreach (var ItemStaffel in Staffeln) {
+                foreach (var ItemFolge in ItemStaffel.Folgen) {
+                    ItemFolge.ZugehörigeStaffel = ItemStaffel;
+                }
             }
 
             this.Title = Serienname;
 
-            this.cbStaffeln.ItemsSource = Staffeln;
+            this.cbStaffeln.ItemsSource = new ObservableCollection<Staffel>(Staffeln.OrderByDescending(Current => Current.Nummer));
             this.Before = Staffeln.Clone();
-
-            foreach(var ItemStaffel in Staffeln) {
-                foreach(var ItemFolge in ItemStaffel.Folgen) {
-                    ItemFolge.ZugehörigeStaffel = ItemStaffel;
-                }
-            }
         }
 
         private ObservableCollection<Staffel> Before {
