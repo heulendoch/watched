@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
@@ -9,54 +10,24 @@ using System.Xml.Linq;
 
 namespace Core.Units {
     
-    public class Serie : IXml, INotifyPropertyChanged, ICloneable {
-
-        /// <summary>
-        /// Name der Serie
-        /// </summary>
-        private string m_Name;
+    public class Serie : Entity, IXml, ICloneable {
 
         /// <summary>
         /// Staffeln der Serie
         /// </summary>
         private ObservableCollection<Staffel> m_Staffeln = new ObservableCollection<Staffel>();
 
+        #region ICommands
 
-        private ICommand m_ComAddZuletztGesehenStaffelNeueFolgeHeute;
+        public ICommand ComAddZuletztGesehenStaffelNeueFolgeHeute { get; private set; }
 
-        private ICommand m_ComAddZuletztGesehenStaffelNeueFolgeGestern;
+        public ICommand ComAddZuletztGesehenStaffelNeueFolgeGestern { get; private set; }
 
+        public ICommand ComAddNeueStaffelFolgeEinsGesehenHeute { get; private set; }
 
+        public ICommand ComAddNeueStaffelFolgeEinsGesehenGestern { get; private set; }
 
-        public ICommand ComAddZuletztGesehenStaffelNeueFolgeHeute {
-            get { return m_ComAddZuletztGesehenStaffelNeueFolgeHeute; }
-            private set { m_ComAddZuletztGesehenStaffelNeueFolgeHeute = value; }
-        }
-
-        public ICommand ComAddZuletztGesehenStaffelNeueFolgeGestern {
-            get { return m_ComAddZuletztGesehenStaffelNeueFolgeGestern; }
-            private set { m_ComAddZuletztGesehenStaffelNeueFolgeGestern = value; }
-        }
-
-
-
-
-        private ICommand m_ComAddNeueStaffelFolgeEinsGesehenHeute;
-
-        private ICommand m_ComAddNeueStaffelFolgeEinsGesehenGestern;
-
-        public ICommand ComAddNeueStaffelFolgeEinsGesehenHeute {
-            get { return m_ComAddNeueStaffelFolgeEinsGesehenHeute; }
-            set { m_ComAddNeueStaffelFolgeEinsGesehenHeute = value; }
-        }
-
-        public ICommand ComAddNeueStaffelFolgeEinsGesehenGestern {
-            get { return m_ComAddNeueStaffelFolgeEinsGesehenGestern; }
-            set { m_ComAddNeueStaffelFolgeEinsGesehenGestern = value; }
-        }
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
 
         /// <summary>
         /// 
@@ -89,11 +60,11 @@ namespace Core.Units {
 
             if (this.ZuletztGesehenStaffel == null) {
                 Staffel St = new Staffel(1);
-                St.Folgen.Add(new Folge(1, new DateTime[] { DateTime.Today.AddDays(AddDays) }));
+                St.Folgen.Add(new Folge(1, false, DateTime.Today.AddDays(AddDays)));
                 this.Staffeln.Add(St);
             }
             else {
-                this.ZuletztGesehenStaffel.Folgen.Add(new Folge(this.ZuletztGesehenFolge.Nummer + 1, new DateTime[] { DateTime.Today.AddDays(AddDays) }));
+                this.ZuletztGesehenStaffel.AddFolge(AddDays, AddEntryNumber.NextNumberFromLastSeen, AddEntryExists.AddToExistingEntry);
             }
 
             
@@ -104,23 +75,28 @@ namespace Core.Units {
 
         private void AddNeueStaffel(int AddDays) {
 
-            Staffel St = this.ZuletztGesehenStaffel == null ? new Staffel(0) : this.ZuletztGesehenStaffel;
-            this.Staffeln.Add(St.Next(DateTime.Today.AddDays(AddDays)));
+            Staffel St = null;
+
+            if (this.ZuletztGesehenStaffel != null) {
+
+                St = this.Staffeln.Where(Current => Current.Nummer == this.ZuletztGesehenStaffel.Nummer + 1).FirstOrDefault();
+                if (St != null) {
+                    St.AddFolge(AddDays, AddEntryNumber.NextNumberFromLastSeen, AddEntryExists.AddToExistingEntry);
+                }
+                else {
+                    St = new Staffel(this.ZuletztGesehenStaffel.Nummer);
+                    this.Staffeln.Add(St.Next(DateTime.Today.AddDays(AddDays)));
+                }
+
+            }
+            else {
+                St = new Staffel(0);
+                this.Staffeln.Add(St.Next(DateTime.Today.AddDays(AddDays)));
+            }
 
             this.OnPropertyChanged("Staffeln");
             this.OnPropertyChanged("ZuletztGesehenStaffel");
             this.OnPropertyChanged("ZuletztGesehenFolge");
-        }
-
-        /// <summary>
-        /// Name der Serie
-        /// </summary>
-        public string Name {
-            get { return this.m_Name; }
-            set { 
-                this.m_Name = value;
-                this.OnPropertyChanged("Name");
-            }
         }
 
         /// <summary>
@@ -141,8 +117,14 @@ namespace Core.Units {
             }
         }
 
+        
         public Staffel ZuletztGesehenStaffel {
-            get { return this.Staffeln.OrderByDescending(Current => Current.ZuletztGesehenFolge.ZeitpunktGesehenZuletzt).ThenByDescending(Current => Current.Nummer).FirstOrDefault(); }
+            get { return this.GetZuletztGesehenStaffel(); }
+        }
+
+        [DebuggerStepThrough]
+        private Staffel GetZuletztGesehenStaffel() {
+            return this.Staffeln.OrderByDescending(Current => Current.ZuletztGesehenFolge.ZeitpunktGesehenZuletzt).ThenByDescending(Current => Current.Nummer).FirstOrDefault();
         }
 
         public Folge ZuletztGesehenFolge {
@@ -166,23 +148,11 @@ namespace Core.Units {
             return Current;
         }
 
-        protected virtual void OnPropertyChanged(string PropertyName) {
-            Helper.VerifyPropertyName(this, PropertyName);
-            PropertyChangedEventHandler Handler = this.PropertyChanged;
-            if (Handler != null) {
-                Handler(this, new PropertyChangedEventArgs(PropertyName));
-            }
-        }
-
         public object Clone() {
             return new Serie(this.Name, this.Staffeln.Clone());
         }
 
         #endregion
-
-        public const string XmlAttrName = "Name";
-
-
 
     }
 }

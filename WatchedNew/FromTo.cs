@@ -33,8 +33,7 @@ namespace Core {
         }
 
         public IEnumerable<int> Generate() { 
-            int Intern = From;
-            for (; Intern <= To; Intern++) {
+            for (int Intern = From; Intern <= To; Intern++) {
                 yield return Intern;
             }
         }

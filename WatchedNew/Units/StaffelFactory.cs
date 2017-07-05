@@ -17,6 +17,22 @@ namespace Core.Units {
                 Folgen.Add(FolgeFactory.FromXElement(InnerCurrent));
             }
 
+            #region Für Abwärtskompatibilität
+
+            var XAEF = Current.Attribute(Staffel.XmlAttrAEF);
+
+            if(XAEF.Value != "X") { 
+                bool AEF = XAEF != null ? Convert.ToBoolean(XAEF.Value) : false;
+
+                if(AEF) {
+                    foreach(var Item in Folgen) {
+                        Item.AEF = true;
+                    }
+                }
+            }
+
+            #endregion
+
             return new Staffel(Nummer, Folgen, Name);
         }
 

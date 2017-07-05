@@ -12,12 +12,15 @@ namespace Core.Units {
             int Nummer = Convert.ToInt32(Current.Attribute(Folge.XmlAttrNummer).Value);
             string Name = Current.Attribute(Folge.XmlAttrName).Value;
 
+            var XAEF = Current.Attribute(Staffel.XmlAttrAEF);
+            bool AEF = XAEF != null ? Convert.ToBoolean(XAEF.Value) : false;
+
             List<DateTime> Gesehen = new List<DateTime>();
             foreach (XElement InnerCurrent in Current.Elements("D")) {
                 Gesehen.Add(new DateTime(Convert.ToInt64(InnerCurrent.Attribute("T").Value)));
             }
 
-            return new Folge(Nummer, Gesehen, Name);
+            return new Folge(Nummer, AEF, Gesehen, Name);
         }
 
 

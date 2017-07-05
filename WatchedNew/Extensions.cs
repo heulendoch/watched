@@ -47,7 +47,7 @@ namespace Core {
 
         public static void AddRange(this Collection<Folge> Current, IEnumerable<int> Einträge) {
             foreach (int Number in Einträge) {
-                Current.Add(new Folge(Number));
+                Current.Add(new Folge(Number, false));
             }
         }
 

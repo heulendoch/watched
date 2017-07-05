@@ -45,7 +45,7 @@ namespace Core {
                 try {
                     XDocument DocLoad = LoadXml();
 
-                    foreach (XElement Current in DocLoad.Root.Elements("Serie")) {
+                    foreach (XElement Current in DocLoad.Root.Elements("Serie").OrderBy(Current => Current.Attribute(Staffel.XmlAttrName).Value)) {
                         Serien.Add(SerieFactory.FromXElement(Current));
                     }
 

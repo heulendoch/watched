@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
@@ -17,10 +18,12 @@ namespace Core {
 
         #region Constructors
 
+        [DebuggerStepThrough]
         public RelayCommand(Action<object> execute)
             : this(execute, null) {
         }
 
+        [DebuggerStepThrough]
         public RelayCommand(Action<object> execute, Predicate<object> canExecute) {
 
             if (execute == null) {

@@ -20,17 +20,31 @@ namespace Watched.Windows {
     /// </summary>
     public partial class SerieStaffelEdit : Window {
 
+        private ObservableCollection<Staffel> m_Before;
 
         public SerieStaffelEdit(ObservableCollection<Staffel> Staffeln = null, string Serienname = "") {
             InitializeComponent();
 
             if (Staffeln == null) {
                 Staffeln = new ObservableCollection<Staffel>();
+                
             }
 
             this.Title = Serienname;
 
             this.cbStaffeln.ItemsSource = Staffeln;
+            this.Before = Staffeln.Clone();
+
+            foreach(var ItemStaffel in Staffeln) {
+                foreach(var ItemFolge in ItemStaffel.Folgen) {
+                    ItemFolge.ZugehörigeStaffel = ItemStaffel;
+                }
+            }
+        }
+
+        private ObservableCollection<Staffel> Before {
+            get { return m_Before; }
+            set { m_Before = value; }
         }
 
         public object Return {
@@ -49,7 +63,7 @@ namespace Watched.Windows {
         private void AddFolge(object sender, RoutedEventArgs e) {
             int Nummer = int.MinValue;
             if (int.TryParse(this.tbFolgeNummer.Text, out Nummer)) {
-                ((Staffel)cbStaffeln.SelectedItem).Folgen.Add(new Folge(Nummer, null, this.tbFolgeName.Text));
+                ((Staffel)cbStaffeln.SelectedItem).Folgen.Add(new Folge(Nummer, false, null, this.tbFolgeName.Text));
                 this.tbFolgeNummer.Text = string.Empty;
                 this.tbFolgeName.Text = string.Empty;
             }
@@ -130,14 +144,14 @@ namespace Watched.Windows {
             
             int NummerNeu = CurrentStaffel.Folgen.NummerNeueFolge();
 
-            int[] Lücken = new int[0];
+            IEnumerable<int> Lücken = new int[0];
 
             if(NummerNeu > 1){
                 FromTo FT = new FromTo(1,  NummerNeu - 1);
-                Lücken = FT.Generate().Where(Current => !CurrentStaffel.Folgen.Select(InnerCurrent => InnerCurrent.Nummer).Contains(Current)).ToArray();
+                Lücken = FT.Generate().Where(Current => !CurrentStaffel.Folgen.Select(InnerCurrent => InnerCurrent.Nummer).Contains(Current));
             }
 
-            if (Lücken.Length > 0) {
+            if (Lücken.Count() > 0) {
                 MessageBox.Show(string.Join(", ", Lücken), "Verpasste Folgen", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             else {
@@ -147,9 +161,19 @@ namespace Watched.Windows {
             
         }
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
 
+            var SBefore = string.Join(string.Empty, this.Before.Select(Current => Current.ToXML()));
+            var SAfter = string.Join(string.Empty, this.cbStaffeln.ItemsSource.OfType<Staffel>().Select(Current => Current.ToXML()));
 
-
-
+            if (this.DialogResult != true && SBefore != SAfter) {
+                if (Stuff.AskForSave() == MessageBoxResult.Yes) {
+                    this.DialogResult = true;
+                }
+                else {
+                    this.DialogResult = false;
+                }
+            }
+        }
     }
 }

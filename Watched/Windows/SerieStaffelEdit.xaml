@@ -3,12 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:converter="clr-namespace:Watched.Converter"
         xmlns:util="clr-namespace:Watched"
-        Title="Serienname" Height="400" Width="400">
+        Title="Serienname" Height="470" Width="470" Closing="Window_Closing">
 
     <Window.Resources>
         <ResourceDictionary>
             <converter:ConverterDateTime x:Key="DateTime"/>
             <converter:ConverterCountEnabled x:Key="CountEnabled"/>
+            <converter:ConverterBoolToYesNo x:Key="BoolToYesNo"/>
+            <converter:ConverterEnumStaffelTextAEF x:Key="EnumStaffelTextAEF"/>
+            <converter:ConverterImageAEF x:Key="ConverterImageAEF"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Watched;component/Themes/Base.xaml" />
             </ResourceDictionary.MergedDictionaries>
@@ -36,7 +39,27 @@
             <ComboBox x:Name="cbStaffeln" SelectedIndex="0" VerticalAlignment="Center"
                       ItemsSource="{Binding Staffeln, Mode=OneWay}"
                       IsEnabled="{Binding ElementName=cbStaffeln, Path=Items.Count, Converter={StaticResource CountEnabled}}"/>
+        </DockPanel>
+        
+        <DockPanel DockPanel.Dock="Top" Margin="4">
+            <TextBlock VerticalAlignment="Center" Margin="0,0,4,0">Befinden sich alle Folgen der Staffel auf externer Festplatte?</TextBlock>
+            <TextBlock VerticalAlignment="Center" Width="80" 
+                       Text="{Binding ElementName=cbStaffeln, Path=SelectedItem.AEF, Mode=OneWay, Converter={StaticResource EnumStaffelTextAEF}}"/>
+
+            <Border Height="20" Width="20" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0">
+                <Border.Background>
+                    <SolidColorBrush Color="LightGray" Opacity="0.4"/>
+                </Border.Background>
+                <Image Height="15" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center"
+                       Source="{Binding ElementName=cbStaffeln, Path=SelectedItem.AEF, Converter={StaticResource ConverterImageAEF}}">
+                    <Image.InputBindings>
+                        <MouseBinding Gesture="LeftClick" Command="{Binding ElementName=cbStaffeln, Path=SelectedItem.ComChangeAEF}"/>
+                    </Image.InputBindings>
+                </Image>
+            </Border>
             
+
+
         </DockPanel>
 
         <GroupBox DockPanel.Dock="Top" Margin="0,4" Header="Folge hinzufügen" Padding="0,6"
@@ -78,22 +101,45 @@
                                     util:GridViewSort.PropertyName="Nummer"/>
                     <GridViewColumn Width="120" Header="Name"
                                     DisplayMemberBinding="{Binding Name}" />
-                    <GridViewColumn Width="80" Header="Aktionen">
+                    <GridViewColumn Width="105" Header="Aktionen">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="/Watched;component/Resources/edit.png" Width="16" Height="16" Tag="{Binding}" MouseLeftButtonDown="EditFolge"/>
                                     <Image Source="/Watched;component/Resources/remove.png" Width="16" Height="16" Tag="{Binding}" MouseLeftButtonDown="RemoveFolge"/>
+                                    <Image Height="15" Width="15" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5,0">
+                                        <Image.InputBindings>
+                                            <MouseBinding Gesture="LeftClick" Command="{Binding ComChangeAEF}"/>
+                                        </Image.InputBindings>
+                                        <Image.ToolTip>
+                                            <TextBlock>
+                                                <Run>Auf externer Festplatte? </Run>
+                                                <Run FontWeight="Bold" Text="{Binding AEF, Mode=OneWay, Converter={StaticResource BoolToYesNo}}"/>
+                                                <LineBreak/>
+                                                <Run>Der Wert kann verändert werden indem man STRG gedrückt hält und auf das Symbol klickt.</Run>
+                                            </TextBlock>
+                                        </Image.ToolTip>
+                                        <Image.Style>
+                                            <Style TargetType="{x:Type Image}">
+                                                <Setter Property="Source" Value="/Watched;component/Resources/ok.png" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Value="False" Binding="{Binding AEF}">
+                                                        <Setter Property="Source" Value="/Watched;component/Resources/cross.png"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
                                     <Button Width="15" Height="15" FontSize="9" Padding="0,-2,0,0" Content="0" Command="{Binding ComAddZeitpunktGesehenHeute}" ToolTip="Als Heute gesehen hinzufügen"/>
                                     <Button Width="15" Height="15" FontSize="9" Padding="0,-2,0,0" Content="-1" Command="{Binding ComAddZeitpunktGesehenGestern}" ToolTip="Als Gestern gesehen hinzufügen"/>
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Width="120" Header="Zuletzt gesehen" 
+                    <GridViewColumn Width="110" Header="Zuletzt gesehen" 
                                     DisplayMemberBinding="{Binding ZeitpunktGesehenZuletzt, Converter={StaticResource DateTime}}"
                                     util:GridViewSort.PropertyName="ZeitpunktGesehenZuletzt"/>
-                    <GridViewColumn Width="120" Header="Anzahl gesehen"
+                    <GridViewColumn Width="110" Header="Anzahl gesehen"
                                     DisplayMemberBinding="{Binding ZeitpunktGesehen.Count}"
                                     util:GridViewSort.PropertyName="ZeitpunktGesehen.Count"/>
                 </GridView>

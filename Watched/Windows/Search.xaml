@@ -1,0 +1,75 @@
+﻿<Window x:Class="Watched.Windows.Search"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converter="clr-namespace:Watched.Converter"
+        xmlns:util="clr-namespace:Watched"
+        Title="Suchen" Height="400" Width="500" Icon="/Watched;component/Resources/search.png">
+    
+    <Window.Resources>
+        <ResourceDictionary>
+            <converter:ConverterDateTime x:Key="DateTime"/>
+            <converter:ConverterCountEnabled x:Key="CountEnabled"/>
+            <converter:ConverterShowIdToImage x:Key="ShowIdToImage"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Watched;component/Themes/Base.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <DockPanel Margin="4">
+        <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center" FontSize="20"><Bold>Suchen</Bold></TextBlock>
+
+        <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Padding="3" Background="AntiqueWhite">Hier können Serien gesucht werden und inklusiver aller Staffeln und Folgen (mit Folgenname) automatisch hinzugefügt werden. Benötigt wird dazu eine <Bold>funktionierende Internetverbindung.</Bold></TextBlock>
+
+        <DockPanel DockPanel.Dock="Top" Margin="4">
+            <TextBlock Text="Serienname:" FontSize="14" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBox FontSize="14" TextChanged="SearchSerienname" x:Name="txtSearchSerienname"/>
+        </DockPanel>
+        
+
+        <TextBlock DockPanel.Dock="Bottom" FontSize="10" Text="{Binding ElementName=lvSerien, Path=Items.Count, StringFormat=Anzahl Einträge: {0}}"/>
+
+        <ListView x:Name="lvSerien" Margin="0,4"
+                  IsEnabled="{Binding ElementName=lvSerien, Path=Items.Count, Converter={StaticResource CountEnabled}}"
+                  DockPanel.Dock="Top" SelectionMode="Single"
+                  util:GridViewSort.AutoSort="True">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="VerticalContentAlignment" Value="Top" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="150" Header="Name"
+                                    DisplayMemberBinding="{Binding Name}"
+                                    util:GridViewSort.PropertyName="Name"/>
+                    
+                    <GridViewColumn Width="120" Header="Cover">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <Image Source="{Binding Id, Converter={StaticResource ShowIdToImage}}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+
+                    </GridViewColumn>
+                    
+                    <GridViewColumn Width="80" Header="Hinzufügen">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <Button Template="{DynamicResource ButtonAdd}" Click="AddSerie" Tag="{Binding Id}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+    </DockPanel>
+</Window>
